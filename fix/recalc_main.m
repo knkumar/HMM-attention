@@ -7,6 +7,6 @@ for id = 1:length(fnames)
     savename = strrep(strrep(model,'.mat',''),'-','_');
 	sNames = dir([fname.folder,'/',model]);
     time_in_states = recalcSummary(time_in_states,true, fname, savename);
-    save('../fits/time_in_states.mat','time_in_states');
 end
 getOverallStats(model, fname.folder, 'fixed*');
+save('../fits/time_in_states.mat','time_in_states');

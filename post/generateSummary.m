@@ -1,4 +1,4 @@
-function [summary, hmm] = generateSummary(hmm, targets)
+function [summary, clean_hmm] = generateSummary(clean_hmm, hmm, targets)
   % get summary statistics on the model
   % FCR - reached
   % FCH - halted
@@ -31,12 +31,13 @@ function [summary, hmm] = generateSummary(hmm, targets)
     respondFoils = initResponses(respondFoils, periodBlk);
     respondTargets = initResponses(respondTargets, periodBlk);
     
-    blkStates = hmm.est.state(blkId);
-    blkObjStates = hmm.est.objState(blkId);
+    blkStates = clean_hmm.est.state(blkId);
+    blk_hmm_states = hmm.est.state(blkId);
+    blkObjStates = clean_hmm.est.objState(blkId);
     blkTargetStates = targets.data.state.current(blkId);
     stimDist = targets.calc.distance(blkId,:);
     stimAngles = targets.calc.angles(blkId,:);
-    stimVel         = hmm.calc.velocity(blkId);
+    stimVel         = clean_hmm.calc.velocity(blkId);
     blkReachedT = [];
     blkReachedF = [];
     blkOrientedT = [];
@@ -50,8 +51,12 @@ function [summary, hmm] = generateSummary(hmm, targets)
       trialId = circshift(trialId,20);
       %Get States
       states          = blkStates(trialId);
+      hmm_states      = blk_hmm_states(trialId);
       objStates       = blkObjStates(trialId);
       targetStates    = blkTargetStates(trialId);
+      start_obj_state     = objStates(1);
+      start_state = states(1);
+      start_hmm_state = hmm_states(1);
       if isletter(currTrial(2))         
         currTrialPos  = str2double(currTrial(3));
       else
@@ -80,25 +85,31 @@ function [summary, hmm] = generateSummary(hmm, targets)
       %firstMatch = find(matches);
       % should match the correct state and should have changed
       % state not remained stationary
+      % adding 200ms - to correct for circshift earlier
       firstCorrect = intersect(find(matches),OchangesIdx) + 20;
       
       
       %minDistToTarget = min(currDist);      
       %minAngleToTarget = min(currAngle(currAngle>0));           
       stimStatus = statusMat{prevTFInd+1, isletter(currTrial(2))+1 };
-      reached = sum(currDist' < 200 & currVel <10);    
+      reached = (currDist' < 200 & currVel <10);    
       halting = (currDist' > 50 & currVel<2);
       % time when halted
       timeReached = find(reached,1);      
       notReached = ones(size(halting));
       if ~isempty(timeReached)
         notReached(timeReached:end) = 0;
+      else
+        timeReached = -10;
       end
+      
       halting = halting & notReached; %& stopping;
       halt_time = find(halting);
 
       if isempty(halt_time)
         halt_time = -10;
+      else
+        halt_time = halt_time + 20;
       end
 
       haltId = blkId; haltId(haltId) = trialId;
@@ -112,11 +123,13 @@ function [summary, hmm] = generateSummary(hmm, targets)
       if isletter(currTrial(2))
         respondFoils = fillResponses(respondFoils, changesIdx, stimStatus, ...
                             OchangesIdx, matches, matchesPrev, length(states), firstCorrect, ...
-                            periodBlk, currTrial, reached, prevResponse, halting, currTrial(2), halt_time);
+                            periodBlk, currTrial, reached, prevResponse, halting, currTrial(2),...
+                            halt_time, timeReached, start_obj_state, start_state, objStates, hmm_states);
       else
         respondTargets = fillResponses(respondTargets, changesIdx, stimStatus, ...
                             OchangesIdx, matches, matchesPrev, length(states), firstCorrect, ...
-                            periodBlk, currTrial, reached, prevResponse, halting, 0, halt_time);
+                            periodBlk, currTrial, reached, prevResponse, halting, 0, halt_time,...
+                            timeReached, start_obj_state, start_state, objStates, hmm_states);
       end
       
       lastTrial = targetStates(end);
@@ -309,10 +322,19 @@ function responseStruct = initResponses(responseStruct, periodBlk)
     responseStruct(structlen).(periodBlk).Nchanges = [];
     responseStruct(structlen).(periodBlk).Ochanges = [];
     responseStruct(structlen).(periodBlk).reached = [];
+    responseStruct(structlen).(periodBlk).time_reached = [];
     responseStruct(structlen).(periodBlk).halted = [];
     responseStruct(structlen).(periodBlk).halt_time = {};
+    responseStruct(structlen).(periodBlk).allRes = {};
     responseStruct(structlen).(periodBlk).prevResponse = [];
     responseStruct(structlen).(periodBlk).stim = [];
+    responseStruct(structlen).(periodBlk).start_obj_state = [];
+    responseStruct(structlen).(periodBlk).start_state = [];
+    responseStruct(structlen).(periodBlk).start_hmm_state = [];
+    responseStruct(structlen).(periodBlk).halt_state = []; 
+    responseStruct(structlen).(periodBlk).curr_state = []; 
+    responseStruct(structlen).(periodBlk).stop_state = []; 
+    responseStruct(structlen).(periodBlk).obj_state = {};
     
     names = {'FF','FT','TF','TT'};
     for i = 1:length(names)
@@ -342,7 +364,8 @@ end
 
 
 function [data] = fillResponses(data, changesIdx, ptInd, OchangesIdx,...
-      matches, matchesPrev, presTime, firstCorrect, periodBlk, trial, reached, prevResponse, halting, foilInd, halt_time)
+      matches, matchesPrev, presTime, firstCorrect, periodBlk, trial, reached, prevResponse,...
+      halting, foilInd, halt_time, timeReached, start_obj_state, start_state, objStates, hmm_states)
     
   % prev measures the states when moving towards previous state
   
@@ -356,8 +379,8 @@ function [data] = fillResponses(data, changesIdx, ptInd, OchangesIdx,...
     changeFlag(OchangesIdx) = 1;
   end
   % find changes that are not previous object
-  changeFlag = find(changeFlag & (~matchesPrev));
-  changes = intersect(changeFlag, OchangesIdx);
+  changeFlag = find(changeFlag & ((~matchesPrev) | matches) );
+  changes = intersect(changeFlag, OchangesIdx) + 20;
   %changes = changesIdx(changesIdx > 4);
   
   if isempty(changes)
@@ -370,21 +393,46 @@ function [data] = fillResponses(data, changesIdx, ptInd, OchangesIdx,...
   data(1).(periodBlk).(trial).changes = changesIdx;
   data(1).(periodBlk).(trial).matches = matches;
   data(1).(periodBlk).(trial).matchesprev = matchesPrev;
+%   data(1).(periodBlk).(trial).reached = reached;
+%   data(1).(periodBlk).(trial).halted = halted;
   data(1).(periodBlk).trialId = [data(1).(periodBlk).trialId, trial];
 
   data(timeGrp+1).(periodBlk).(trial).changes = changesIdx;
   data(timeGrp+1).(periodBlk).(trial).matches = matches;
   data(timeGrp+1).(periodBlk).(trial).matchesprev = matchesPrev;
   
+  if (changes == -10)
+    state_changes = changes;
+  else
+    state_changes = objStates(changes-20);
+  end
   % compute statistics for each pBlocks
   function [dat] = computeStatsforDat(dat)
     dat.firstRes = [dat.firstRes, changes(1)]; % first response
+    dat.allRes = [dat.allRes, {changes} ]; % first response
     dat.Res = [dat.Res, changesIdx]; % all responses
     dat.presTimes = [dat.presTimes, presTime]; % presentation time
     dat.firstResC = [dat.firstResC, firstCorrect(1)]; % first correct
-    dat.reached = [dat.reached, reached];
+    dat.reached = [dat.reached, sum(reached) > 0];
     dat.halted = [dat.halted, sum(halting)>0];
     dat.halt_time = [dat.halt_time; halt_time];
+    dat.time_reached = [dat.time_reached , timeReached];
+    dat.start_objstate = [dat.start_obj_state, start_obj_state];
+    dat.start_state = [dat.start_state, start_state];
+    dat.start_hmm_state = [dat.start_hmm_state, hmm_states(1)];
+    if halt_time(end) > 0
+        dat.halt_state = [dat.halt_state, hmm_states(halt_time(end)-20)];
+    else
+        dat.halt_state = [dat.halt_state, -1];
+    end
+    if firstCorrect(1) > 0
+        dat.curr_state = [dat.curr_state, hmm_states(firstCorrect(1)-20)];
+    else
+        dat.curr_state = [dat.curr_state, -1];
+    end
+    dat.stop_state = [dat.stop_state, hmm_states(end)];
+    dat.obj_state = [dat.obj_state, {state_changes}];
+
     if foilInd ~= 0
       dat.stim = [dat.stim,foilInd];
     end
@@ -392,7 +440,7 @@ function [data] = fillResponses(data, changesIdx, ptInd, OchangesIdx,...
     dat.(ptInd).firstResC = [dat.(ptInd).firstResC, firstCorrect(1)];
     dat.(ptInd).firstRes = [dat.(ptInd).firstRes, changes(1)];
     dat.(ptInd).Res = [dat.(ptInd).Res, changesIdx];    
-    dat.(ptInd).reached = [dat.(ptInd).reached, reached];
+    dat.(ptInd).reached = [dat.(ptInd).reached, sum(reached) > 0];
     dat.(ptInd).halted = [dat.(ptInd).halted, sum(halting)>0];
     dat.(ptInd).prevResponse = [dat.(ptInd).prevResponse,prevResponse];
     if (changes == -10)
