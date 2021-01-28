@@ -55,7 +55,11 @@ The naming convention for the trial is as follows:
 
 ## Code
 
+The main driver program is *att_hmm.m*.
+
 ### Transform data
+
+
 
 ### Generate fits
 
