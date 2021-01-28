@@ -1,4 +1,8 @@
-[TOC]
+- [HMM for describing attention from cursor movements](#hmm-for-describing-attention-from-cursor-movements)
+  * [Transform data](#transform-data)
+  * [Generate fits](#generate-fits)
+  * [Fix fits based on operational constraints of attention](#fix-fits-based-on-operational-constraints-of-attention)
+  * [Summarize fits to observe an individual's attention](#summarize-fits-to-observe-an-individual-s-attention)
 
 ## HMM for describing attention from cursor movements
 
