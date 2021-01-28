@@ -1,8 +1,10 @@
 - [HMM for describing attention from cursor movements](#hmm-for-describing-attention-from-cursor-movements)
-  - [Transform data](#transform-data)
-  - [Generate fits](#generate-fits)
-  - [Fix fits based on operational constraints of attention](#fix-fits-based-on-operational-constraints-of-attention)
-  - [Summarize fits to observe an individual's attention](#summarize-fits-to-observe-an-individual-s-attention)
+  * [Data](#data)
+  * [Code](#code)
+    + [Transform data](#transform-data)
+    + [Generate fits](#generate-fits)
+    + [Fix fits based on operational constraints of attention](#fix-fits-based-on-operational-constraints-of-attention)
+    + [Summarize fits to observe an individual's attention](#summarize-fits-to-observe-an-individual-s-attention)
 
 # HMM for describing attention from cursor movements
 
@@ -56,6 +58,15 @@ The naming convention for the trial is as follows:
 ## Code
 
 The main driver program is *att_hmm.m*.
+
+The following line saves a fit mat file in the same folder as the data by using the ```fitmodel``` function.
+
+```matlab
+% sName: directory structure with filename for data
+% Resolution: screen resolution for experimental paradigm
+% iterations: number of iterations for optimization
+fitmodel(sName, Resolution, iterations);
+```
 
 ### Transform data
 
