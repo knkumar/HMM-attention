@@ -72,14 +72,14 @@ fitmodel(sName, Resolution, iterations);
 
 The first stage in fitting a model involved the preparation of data. It uses the following files from the *pre* folder.
 
-- getDataAnalysis.m
+- ```getDataAnalysis.m```
 
   The files starts by loading the law data *block_data* and generates *mouse_data* used to calculate *hand* and *targets* data structures.
 
   - *hand* structure contains data for each period, block, trial and XY coordinates.
   - *targets* structure contains state and target flag.
 
-- generateMouseData.m
+- ```generateMouseData.m```
 
   The file uses raw data to calculate normalized mouse data (from *normalizeData.m*) based on the modified resolution to downsample raw data. 
 
