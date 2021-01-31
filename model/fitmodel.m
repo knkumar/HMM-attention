@@ -17,7 +17,7 @@ function fitmodel(sName, Resolution, maxiter)
     [xfin, fval] = fminsearch(@optimHMM,x,options,targets,hand,sim);
     disp(sum(xfin-x))
     hmm = getHMM_null(xfin);
-
+x
     [targets,hand,sim,hmm] = analyze10(targets,hand,sim,hmm);
     targets.data.trial = hand.data.trial;
     % generate summary statistics from fit

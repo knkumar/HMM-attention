@@ -85,11 +85,21 @@ The first stage in fitting a model involved the preparation of data. It uses the
 
 ### Generate fits
 
-- `optimHMM.m`
+- `fitmodel.m`
 
-  The function is used to find optimal parameters for the first and last 10000 data points using fminsearch.
+  fitmodel is the entry point to the fitting process. In this particular case, a modified hmm model with distributional parameters governing emission probabilities is being optimized.
 
 - `analyze10.m`
+
+  Generates the emission probabilities from raw measures for use in a hidden Markov model - `hmmviterbi_multi2` 
+
+- `optimHMM.m`
+
+  The function is used to find optimal parameters for the **first** and **last** 10000 data points using `fminsearch`.
+
+- `hmmviterbi_multi2.m`
+
+  Hmmviterbi_multi2 calculates the most probable path in a hidden Markov model with multiple emissions from a hidden state. 
 
 ### Fix fits based on operational constraints of attention
 
