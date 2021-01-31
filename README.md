@@ -39,21 +39,21 @@ The naming convention for the trial is as follows:
 
 1. R31 - Red target presented at position 3 on first trial
 
-   >  R \<Target R:Red S:Size Q:square\>
+   >  `R <Target R:Red S:Size Q:square>`
 >
-   > 3 \<Position on screen\>
+   > `3 <Position on screen>`
 >
-   > 1 \<Trial number\>
+   > `1 <Trial number>`
 
 2. RS25 - Size foil presented when searching for a red target at position 2 on fifth trial
 
-   >  R \<Target R:Red S:Size Q:square\>
+   >  `R <Target R:Red S:Size Q:square>`
 >
-   > S \<Foil R:Red S:Size Q:square\>
+   > `S <Foil R:Red S:Size Q:square>`
 >
-   > 2 \<Position on screen\>
+   > `2 <Position on screen>`
 >
-   > 5 \<Trial number\>
+   > `5 <Trial number>`
 
 ## Code
 
@@ -72,18 +72,24 @@ fitmodel(sName, Resolution, iterations);
 
 The first stage in fitting a model involved the preparation of data. It uses the following files from the *pre* folder.
 
-- ```getDataAnalysis.m```
+- `getDataAnalysis.m`
 
-  The files starts by loading the law data *block_data* and generates *mouse_data* used to calculate *hand* and *targets* data structures.
+  The function starts by loading the law data *block_data* and generates *mouse_data* used to calculate `hand` and `targets` data structures.
 
-  - *hand* structure contains data for each period, block, trial and XY coordinates.
-  - *targets* structure contains state and target flag.
+  - `hand` structure contains data for each period, block, trial and XY coordinates.
+  - `targets` structure contains state and target flag.
 
-- ```generateMouseData.m```
+- `generateMouseData.m`
 
-  The file uses raw data to calculate normalized mouse data (from *normalizeData.m*) based on the modified resolution to downsample raw data. 
+  The function uses raw data to calculate normalized mouse data (from *normalizeData.m*) based on the modified resolution to downsample raw data. 
 
 ### Generate fits
+
+- `optimHMM.m`
+
+  The function is used to find optimal parameters for the first and last 10000 data points using fminsearch.
+
+- `analyze10.m`
 
 ### Fix fits based on operational constraints of attention
 
