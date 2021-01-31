@@ -40,15 +40,20 @@ The naming convention for the trial is as follows:
 1. R31 - Red target presented at position 3 on first trial
 
    >  `R <Target R:Red S:Size Q:square>`
-   > `3 <Position on screen>`
-   > `1 <Trial number>`
+   >
+   >  `3 <Position on screen>`
+   >
+   >  `1 <Trial number>`
 
 2. RS25 - Size foil presented when searching for a red target at position 2 on fifth trial
 
    >  `R <Target R:Red S:Size Q:square>`
-   > `S <Foil R:Red S:Size Q:square>`
-   > `2 <Position on screen>`
-   > `5 <Trial number>`
+   >
+   >  `S <Foil R:Red S:Size Q:square>`
+   >
+   >  `2 <Position on screen>`
+   >
+   >  `5 <Trial number>`
 
 ## Code
 
