@@ -103,5 +103,16 @@ The first stage in fitting a model involved the preparation of data. It uses the
 
 ### Fix fits based on operational constraints of attention
 
+- `fix_center_states.m`
+
+  
+
 ### Summarize fits to observe an individual's attention
 
+- `generateSummary.m`
+
+- `getOverallStats.m`
+
+- `gen_data_model.m`
+
+  
